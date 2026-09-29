@@ -93,6 +93,19 @@ def polar_nrz_i_scheme(message: str, V=1):
 
     return x, y
 
+def polar_rz_scheme(message: str, V=1):
+    if len(message) == 0:
+        return [], []
+    peak = V * 0.5
+    x = generate_x(len(message), step=0.5)[:-1]
+    y = []
+    for i in message:
+        if i == "0":
+            y += [-peak, -peak, 0, 0]
+        elif i == "1":
+            y += [peak, peak, 0, 0]
+    return x, y
+
 
 def generate_plots(plot_func, message: str, title:str, V=1, trun_len:int = 32):
     # --------------------------------------------
@@ -213,4 +226,5 @@ def generate_plots(plot_func, message: str, title:str, V=1, trun_len:int = 32):
 # Generate Each Plot
 # generate_plots(unipolar_scheme, MESSAGE, "Unipolar NRZ", V=1)
 # generate_plots(polar_nrz_l_scheme, MESSAGE, "Polar NRZ-L", V=1)
-generate_plots(polar_nrz_i_scheme, MESSAGE, "Polar NRZ-I", V=1)
+# generate_plots(polar_nrz_i_scheme, MESSAGE, "Polar NRZ-I", V=1)
+generate_plots(polar_rz_scheme, MESSAGE, "Polar RZ", V=1)
