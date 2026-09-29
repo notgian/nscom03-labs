@@ -35,7 +35,7 @@ V_GLOBAL = 1;
 # Unipolar NRZ
 def unipolar_scheme(message: str, V=1) -> tuple[list[int], list[int]]:
     """ Generates the x and y values for the plot of a
-    Unipolar NRZ line encoding scheme. The Volatege V is
+    Unipolar NRZ line encoding scheme. The Volatage V is
     the peak-to-peak voltage. """
     if len(message) == 0:
         return [], []
@@ -52,7 +52,7 @@ def unipolar_scheme(message: str, V=1) -> tuple[list[int], list[int]]:
 
 def polar_nrz_l_scheme(message: str, V=1):
     """ Generates the x and y values for the plot of a
-    Polar NRZ-L line encoding scheme. The Volatege V is
+    Polar NRZ-L line encoding scheme. The Volatage V is
     the peak-to-peak voltage. """
     peak_pos = V * 0.5
     peak_neg = -V * 0.5
@@ -72,7 +72,7 @@ def polar_nrz_l_scheme(message: str, V=1):
 
 def polar_nrz_i_scheme(message: str, V=1):
     """ Generates the x and y values for the plot of a
-    Polar NRZ-I line encoding scheme. The Volatege V is
+    Polar NRZ-I line encoding scheme. The Volatage V is
     the peak-to-peak voltage. """
 
     if len(message) == 0:
@@ -94,6 +94,9 @@ def polar_nrz_i_scheme(message: str, V=1):
     return x, y
 
 def polar_rz_scheme(message: str, V=1):
+    """ Generates the x and y values for the plot of a
+    Polar RZ line encoding scheme. The Volatage V is
+    the peak-to-peak voltage. """
     if len(message) == 0:
         return [], []
     peak = V * 0.5
@@ -105,6 +108,23 @@ def polar_rz_scheme(message: str, V=1):
         elif i == "1":
             y += [peak, peak, 0, 0]
     return x, y
+
+def bipolar_manchester(message: str, V=1):
+    """ Generates the x and y values for the plot of a
+    Bipolar Manchester line encoding scheme. The Volatage V 
+    is the peak-to-peak voltage. """
+    if len(message) == 0:
+        return [], []
+    peak = V * 0.5
+    x = generate_x(len(message), step=0.5)[:-1]
+    y = []
+    for i in message:
+        if i == "0":
+            y += [peak, peak, -peak, -peak]
+        elif i == "1":
+            y += [-peak, -peak, peak, peak]
+    return x, y
+
 
 
 def generate_plots(plot_func, message: str, title:str, V=1, trun_len:int = 32):
@@ -227,4 +247,5 @@ def generate_plots(plot_func, message: str, title:str, V=1, trun_len:int = 32):
 # generate_plots(unipolar_scheme, MESSAGE, "Unipolar NRZ", V=1)
 # generate_plots(polar_nrz_l_scheme, MESSAGE, "Polar NRZ-L", V=1)
 # generate_plots(polar_nrz_i_scheme, MESSAGE, "Polar NRZ-I", V=1)
-generate_plots(polar_rz_scheme, MESSAGE, "Polar RZ", V=1)
+# generate_plots(polar_rz_scheme, MESSAGE, "Polar RZ", V=1)
+generate_plots(bipolar_manchester, MESSAGE, "Polar RZ", V=1)
