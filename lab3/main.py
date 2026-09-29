@@ -70,6 +70,30 @@ def polar_nrz_l_scheme(message: str, V=1):
     return x, y
 
 
+def polar_nrz_i_scheme(message: str, V=1):
+    """ Generates the x and y values for the plot of a
+    Polar NRZ-I line encoding scheme. The Volatege V is
+    the peak-to-peak voltage. """
+
+    if len(message) == 0:
+        return [], []
+    peak = V * 0.5
+    x = [0] + generate_x(len(message))[:-1]
+
+    y = [peak]
+    current_level = y[-1]
+
+    for i in message:
+        # invert signal if bit is 1
+        if i == "1":
+            current_level = -current_level
+
+        y.append(current_level)
+        y.append(current_level)
+
+    return x, y
+
+
 def generate_plots(plot_func, message: str, title:str, V=1, trun_len:int = 32):
     # --------------------------------------------
     # --- I. First trunc_len bits with labels  ---
@@ -83,7 +107,8 @@ def generate_plots(plot_func, message: str, title:str, V=1, trun_len:int = 32):
         y, 
         label=plot_title, 
         color="tab:blue",
-        linewidth=2
+        linewidth=2,
+        drawstyle="steps-post"
     )
 
     # Draw boundary lines for each bit
@@ -129,7 +154,8 @@ def generate_plots(plot_func, message: str, title:str, V=1, trun_len:int = 32):
         y, 
         label=plot_title, 
         color="tab:blue",
-        linewidth=0.5
+        linewidth=0.5,
+        drawstyle="steps-post"
     )
 
     # Draw boundary lines matched to actual voltage range
@@ -186,4 +212,5 @@ def generate_plots(plot_func, message: str, title:str, V=1, trun_len:int = 32):
 
 # Generate Each Plot
 # generate_plots(unipolar_scheme, MESSAGE, "Unipolar NRZ", V=1)
-generate_plots(polar_nrz_l_scheme, MESSAGE, "Polar NRZ-L", V=1)
+# generate_plots(polar_nrz_l_scheme, MESSAGE, "Polar NRZ-L", V=1)
+generate_plots(polar_nrz_i_scheme, MESSAGE, "Polar NRZ-I", V=1)
