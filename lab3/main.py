@@ -1,8 +1,8 @@
-# import matplotlib
-# matplotlib.use('Agg')  # Set non-interactive backend before pyplot
+import matplotlib
+matplotlib.use('Agg')  # Set non-interactive backend before pyplot
 
 import matplotlib.pyplot as plt
-import numpy as np
+import shutil
 import os
 
 MESSAGE_STR = "You're all I ever needed, yeah"
@@ -192,7 +192,10 @@ def bipolar_pseudoternary(message: str, V=1):
 
     return x, y
 
-def generate_plots(plot_func, message: str, title:str, V=1, trun_len:int = 32):
+def generate_plots(plot_func, message: str, title: str, save_dir: str, V=1, trun_len: int = 32):
+    os.makedirs(save_dir, exist_ok=True)
+    filename_base = title.lower().replace(" ", "_")
+
     # --------------------------------------------
     # --- I. First trunc_len bits with labels  ---
     # --------------------------------------------
@@ -240,11 +243,18 @@ def generate_plots(plot_func, message: str, title:str, V=1, trun_len:int = 32):
     # Keep y-limits clean with slight padding
     ax.set_ylim(min(y) - V * 0.5, max(y) + V * 0.5)
     plt.tight_layout()
+    plt.savefig(os.path.join(save_dir, f"{filename_base}_truncated.png"))
+    plt.close(fig)
     
     # --------------------------------------------
     # --- II. Full message with reduced layout ---
     # --------------------------------------------
-    fig, ax = plt.subplots(figsize=(6, 3.5), dpi=250)
+
+    # Dynamically scale width for the full message (0.6 inches per byte / 8 bits)
+    # full_width = max(12, (len(message) / 8) * 0.6)
+    # fig, ax = plt.subplots(figsize=(full_width, 3.5), dpi=250)
+    fig, ax = plt.subplots(figsize=(12, 3.5), dpi=250)
+
     x, y = plot_func(MESSAGE, V=V_GLOBAL)
     plot_title = f'{title} (Full Message)'
     ax.plot(
@@ -305,15 +315,32 @@ def generate_plots(plot_func, message: str, title:str, V=1, trun_len:int = 32):
     # Keep y-limits clean with slight padding
     ax.set_ylim(min(y) - 0.5, max(y) + 0.5)
     plt.tight_layout()
+    plt.savefig(os.path.join(save_dir, f"{filename_base}_full.png"))
+    plt.close(fig)
 
-    plt.show()
+if __name__ == "__main__":
+    # Create/Clean directory for generated plots
+    EXPORT_DIR = 'line_encoding_plots'
+    if os.path.exists(EXPORT_DIR):
+        print("Removing old plots...")
+        shutil.rmtree(EXPORT_DIR)  # Delete old plots/directory
+    os.makedirs(EXPORT_DIR, exist_ok=True)
 
-# Generate Each Plot
-# generate_plots(unipolar_scheme, MESSAGE, "Unipolar NRZ", V=1)
-# generate_plots(polar_nrz_l_scheme, MESSAGE, "Polar NRZ-L", V=1)
-# generate_plots(polar_nrz_i_scheme, MESSAGE, "Polar NRZ-I", V=1)
-# generate_plots(polar_rz_scheme, MESSAGE, "Polar RZ", V=1)
-# generate_plots(bipolar_manchester, MESSAGE, "Bipolar Manchester", V=1)
-# generate_plots(bipolar_differential_manchester, MESSAGE, "Bipolar Differential Manchester", V=1, trun_len=16)
-generate_plots(bipolar_ami, MESSAGE, "Bipolar AMI", V=1, trun_len=16)
-generate_plots(bipolar_pseudoternary, MESSAGE, "Bipolar Pseudoternary", V=1, trun_len=16)
+    # Define schemes to generate
+    schemes = [
+        (unipolar_scheme, "Unipolar NRZ", 32),
+        (polar_nrz_l_scheme, "Polar NRZ-L", 32),
+        (polar_nrz_i_scheme, "Polar NRZ-I", 32),
+        (polar_rz_scheme, "Polar RZ", 32),
+        (bipolar_manchester, "Bipolar Manchester", 32),
+        (bipolar_differential_manchester, "Bipolar Differential Manchester", 16),
+        (bipolar_ami, "Bipolar AMI", 16),
+        (bipolar_pseudoternary, "Bipolar Pseudoternary", 16),
+    ]
+
+    # Generate Each Plot
+    for func, title, trun in schemes:
+        print(f"Generating plot for: {title}...")
+        generate_plots(func, MESSAGE, title, EXPORT_DIR, V=1, trun_len=trun)
+
+    print("All plots generated successfully!")
