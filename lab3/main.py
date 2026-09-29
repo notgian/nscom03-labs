@@ -33,9 +33,10 @@ MESSAGE = MESSAGE_BIN
 V_GLOBAL = 1;
 
 # Unipolar NRZ
-def gen_unipolar_scheme(message: str, V=1) -> tuple[list[int], list[int]]:
+def unipolar_scheme(message: str, V=1) -> tuple[list[int], list[int]]:
     """ Generates the x and y values for the plot of a
-    Unipolar NRZ line encoding scheme. """
+    Unipolar NRZ line encoding scheme. The Volatege V is
+    the peak-to-peak voltage. """
     if len(message) == 0:
         return [], []
     x = generate_x(len(message))[:-1]
@@ -47,8 +48,27 @@ def gen_unipolar_scheme(message: str, V=1) -> tuple[list[int], list[int]]:
         elif i == "1":
             y.append(V)
             y.append(V)
-
     return x, y
+
+def polar_nrz_l_scheme(message: str, V=1):
+    """ Generates the x and y values for the plot of a
+    Polar NRZ-L line encoding scheme. The Volatege V is
+    the peak-to-peak voltage. """
+    peak_pos = V * 0.5
+    peak_neg = -V * 0.5
+    if len(message) == 0:
+        return [], []
+    x = generate_x(len(message))[:-1]
+    y = []
+    for i in message:
+        if i == "0":
+            y.append(peak_pos)
+            y.append(peak_pos)
+        elif i == "1":
+            y.append(peak_neg)
+            y.append(peak_neg)
+    return x, y
+
 
 def generate_plots(plot_func, message: str, title:str, V=1, trun_len:int = 32):
     # --------------------------------------------
@@ -165,4 +185,5 @@ def generate_plots(plot_func, message: str, title:str, V=1, trun_len:int = 32):
     plt.show()
 
 # Generate Each Plot
-generate_plots(gen_unipolar_scheme, MESSAGE, "Unipolar NRZ", V=1)
+# generate_plots(unipolar_scheme, MESSAGE, "Unipolar NRZ", V=1)
+generate_plots(polar_nrz_l_scheme, MESSAGE, "Polar NRZ-L", V=1)
