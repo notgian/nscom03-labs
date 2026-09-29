@@ -125,6 +125,28 @@ def bipolar_manchester(message: str, V=1):
             y += [-peak, -peak, peak, peak]
     return x, y
 
+def bipolar_differential_manchester(message: str, V=1):
+    """ Generates the x and y values for the plot of a
+    Bipolar Differential Manchester line encoding scheme. 
+    The Volatage V is the peak-to-peak voltage. """
+
+    if len(message) == 0:
+        return [], []
+
+    peak = V * 0.5
+    x = [0] + generate_x(len(message), step = 0.5)[:-1]
+
+    y = [peak]
+
+    for i in message:
+        current_level = y[-1]
+        # invert signal if bit is 0
+        if i == "0":
+            current_level = -current_level
+
+        y += [current_level, current_level, -current_level, -current_level]
+
+    return x, y
 
 
 def generate_plots(plot_func, message: str, title:str, V=1, trun_len:int = 32):
@@ -248,4 +270,5 @@ def generate_plots(plot_func, message: str, title:str, V=1, trun_len:int = 32):
 # generate_plots(polar_nrz_l_scheme, MESSAGE, "Polar NRZ-L", V=1)
 # generate_plots(polar_nrz_i_scheme, MESSAGE, "Polar NRZ-I", V=1)
 # generate_plots(polar_rz_scheme, MESSAGE, "Polar RZ", V=1)
-generate_plots(bipolar_manchester, MESSAGE, "Polar RZ", V=1)
+# generate_plots(bipolar_manchester, MESSAGE, "Bipolar Manchester", V=1)
+generate_plots(bipolar_differential_manchester, MESSAGE, "Bipolar Differential Manchester", V=1, trun_len=16)
