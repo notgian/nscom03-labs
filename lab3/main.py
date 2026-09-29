@@ -148,6 +148,49 @@ def bipolar_differential_manchester(message: str, V=1):
 
     return x, y
 
+def bipolar_ami(message: str, V=1):
+    """ Generates the x and y values for the plot of a
+    Bipolar AMI line encoding scheme. The Volatage V is 
+    the peak-to-peak voltage. """
+
+    if len(message) == 0:
+        return [], []
+
+    x = generate_x(len(message))[:-1]
+
+    peak = V * 0.5
+    y = []
+
+    for i in message:
+        if i == "0":
+            y += [0 ,0]
+        elif i == "1":
+            y += [peak, peak]
+            peak = -peak
+
+    return x, y
+
+def bipolar_pseudoternary(message: str, V=1):
+    """ Generates the x and y values for the plot of a
+    Bipolar Pseudoternary line encoding scheme. The 
+    Volatage V is the peak-to-peak voltage. """
+
+    if len(message) == 0:
+        return [], []
+
+    x = generate_x(len(message))[:-1]
+
+    peak = V * 0.5
+    y = []
+
+    for i in message:
+        if i == "1":
+            y += [0 ,0]
+        elif i == "0":
+            y += [peak, peak]
+            peak = -peak
+
+    return x, y
 
 def generate_plots(plot_func, message: str, title:str, V=1, trun_len:int = 32):
     # --------------------------------------------
@@ -271,4 +314,6 @@ def generate_plots(plot_func, message: str, title:str, V=1, trun_len:int = 32):
 # generate_plots(polar_nrz_i_scheme, MESSAGE, "Polar NRZ-I", V=1)
 # generate_plots(polar_rz_scheme, MESSAGE, "Polar RZ", V=1)
 # generate_plots(bipolar_manchester, MESSAGE, "Bipolar Manchester", V=1)
-generate_plots(bipolar_differential_manchester, MESSAGE, "Bipolar Differential Manchester", V=1, trun_len=16)
+# generate_plots(bipolar_differential_manchester, MESSAGE, "Bipolar Differential Manchester", V=1, trun_len=16)
+generate_plots(bipolar_ami, MESSAGE, "Bipolar AMI", V=1, trun_len=16)
+generate_plots(bipolar_pseudoternary, MESSAGE, "Bipolar Pseudoternary", V=1, trun_len=16)
