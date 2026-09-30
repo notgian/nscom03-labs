@@ -27,9 +27,6 @@ def generate_x(length: int, step=1):
 
 MESSAGE_BIN = "".join(ascii_char_to_bin(char) for char in MESSAGE_STR)
 
-# TODO: USE FULL MESSAGE. ONLY FOR TESTING
-MESSAGE = MESSAGE_BIN
-
 V_GLOBAL = 1;
 
 # Unipolar NRZ
@@ -192,17 +189,17 @@ def bipolar_pseudoternary(message: str, V=1):
 
     return x, y
 
-def generate_plots(plot_func, message: str, title: str, save_dir: str, V=1, trun_len: int = 32):
+def generate_plots(plot_func, message: str, title: str, save_dir: str, V=1, trunc_len: int = 32):
     os.makedirs(save_dir, exist_ok=True)
     filename_base = title.lower().replace(" ", "_")
 
     # --------------------------------------------
     # --- I. First trunc_len bits with labels  ---
     # --------------------------------------------
-    message_trunc = message[:trun_len]
+    message_trunc = message[:trunc_len]
     fig, ax = plt.subplots(figsize=(6, 3.5), dpi=250)
     x, y = plot_func(message_trunc, V=V_GLOBAL)
-    plot_title = f'{title} (Truncated to First {trun_len} Bits)' 
+    plot_title = f'{title} (Truncated to First {trunc_len} Bits)' 
     ax.plot(
         x, 
         y, 
@@ -226,7 +223,7 @@ def generate_plots(plot_func, message: str, title: str, save_dir: str, V=1, trun
     ax.axhline(
         y=0,
         color="black",
-        linestyle="-",
+        linestyle="--",
         linewidth=1,
         alpha=0.7,
         zorder=1,  # Keeps line behind data points if needed
@@ -262,7 +259,7 @@ def generate_plots(plot_func, message: str, title: str, save_dir: str, V=1, trun
         y, 
         label=plot_title, 
         color="tab:blue",
-        linewidth=0.5,
+        linewidth=0.8,
         drawstyle="steps-post"
     )
 
@@ -276,7 +273,7 @@ def generate_plots(plot_func, message: str, title: str, save_dir: str, V=1, trun
             alpha=0.7,
         )
 
-    # Draw horizontal line at y=0
+    # Draw horizontal line at y=-1
     ax.axhline(
         y=0,
         color="black",
@@ -307,7 +304,7 @@ def generate_plots(plot_func, message: str, title: str, save_dir: str, V=1, trun
     # Apply ticks and labels
     ax.set_title(plot_title, fontsize=10, fontweight='bold', pad=10)
     ax.set_xticks(byte_tick_positions)
-    ax.set_xticklabels(byte_tick_labels, fontsize=8)  # Reduced font size to avoid overlap
+    ax.set_xticklabels(byte_tick_labels, fontsize=12)
     ax.set_xlabel("Time (Byte Intervals)")
 
     ax.set_ylabel("Voltage (V)")
@@ -319,6 +316,9 @@ def generate_plots(plot_func, message: str, title: str, save_dir: str, V=1, trun
     plt.close(fig)
 
 if __name__ == "__main__":
+# TODO: USE FULL MESSAGE. ONLY FOR TESTING
+    MESSAGE = MESSAGE_BIN
+
     # Create/Clean directory for generated plots
     EXPORT_DIR = 'line_encoding_plots'
     if os.path.exists(EXPORT_DIR):
@@ -326,21 +326,23 @@ if __name__ == "__main__":
         shutil.rmtree(EXPORT_DIR)  # Delete old plots/directory
     os.makedirs(EXPORT_DIR, exist_ok=True)
 
+    TRUNC_LENGTH = 16
+
     # Define schemes to generate
     schemes = [
-        (unipolar_scheme, "Unipolar NRZ", 32),
-        (polar_nrz_l_scheme, "Polar NRZ-L", 32),
-        (polar_nrz_i_scheme, "Polar NRZ-I", 32),
-        (polar_rz_scheme, "Polar RZ", 32),
-        (bipolar_manchester, "Bipolar Manchester", 32),
-        (bipolar_differential_manchester, "Bipolar Differential Manchester", 16),
-        (bipolar_ami, "Bipolar AMI", 16),
-        (bipolar_pseudoternary, "Bipolar Pseudoternary", 16),
+        (unipolar_scheme, "Unipolar NRZ", TRUNC_LENGTH),
+        (polar_nrz_l_scheme, "Polar NRZ-L", TRUNC_LENGTH),
+        (polar_nrz_i_scheme, "Polar NRZ-I", TRUNC_LENGTH),
+        (polar_rz_scheme, "Polar RZ", TRUNC_LENGTH),
+        (bipolar_manchester, "Bipolar Manchester", TRUNC_LENGTH),
+        (bipolar_differential_manchester, "Bipolar Differential Manchester", TRUNC_LENGTH),
+        (bipolar_ami, "Bipolar AMI", TRUNC_LENGTH),
+        (bipolar_pseudoternary, "Bipolar Pseudoternary", TRUNC_LENGTH),
     ]
 
     # Generate Each Plot
     for func, title, trun in schemes:
         print(f"Generating plot for: {title}...")
-        generate_plots(func, MESSAGE, title, EXPORT_DIR, V=1, trun_len=trun)
+        generate_plots(func, MESSAGE, title, EXPORT_DIR, V=1, trunc_len=trun)
 
     print("All plots generated successfully!")
