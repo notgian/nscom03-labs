@@ -248,9 +248,8 @@ def generate_plots(plot_func, message: str, title: str, save_dir: str, V=1, trun
     # --------------------------------------------
 
     # Dynamically scale width for the full message (0.6 inches per byte / 8 bits)
-    # full_width = max(12, (len(message) / 8) * 0.6)
-    # fig, ax = plt.subplots(figsize=(full_width, 3.5), dpi=250)
-    fig, ax = plt.subplots(figsize=(12, 3.5), dpi=250)
+    full_width = max(20, (len(message) / 8) * 0.6)
+    fig, ax = plt.subplots(figsize=(full_width, 3.5), dpi=250)
 
     x, y = plot_func(MESSAGE, V=V_GLOBAL)
     plot_title = f'{title} (Full Message)'
@@ -264,7 +263,7 @@ def generate_plots(plot_func, message: str, title: str, save_dir: str, V=1, trun
     )
 
     # Draw boundary lines matched to actual voltage range
-    for byte_boundary in range(0, len(message) + 1, 8):
+    for byte_boundary in range(0, len(message) + 1):
         ax.axvline(
             x=byte_boundary,
             linestyle="--",
@@ -282,35 +281,18 @@ def generate_plots(plot_func, message: str, title: str, save_dir: str, V=1, trun
         alpha=0.7,
         zorder=1,  # Keeps line behind data points if needed
     )
-    
-    BYTE_SIZE = 8
-
-    # Group message into 8-bit chunks
-    byte_chunks = [
-        message[i : i + BYTE_SIZE]
-        for i in range(0, len(message), BYTE_SIZE)
-        ]
-
-    # Calculate x-center for each byte chunk
-    byte_tick_positions = [
-        i * BYTE_SIZE + (len(chunk) / 2) for i, chunk in enumerate(byte_chunks)
-        ]
-
-    # Format labels as the char values of each byte
-    byte_tick_labels = [
-    chr(int("".join(map(str, chunk)), 2)) for chunk in byte_chunks
-    ]
 
     # Apply ticks and labels
     ax.set_title(plot_title, fontsize=10, fontweight='bold', pad=10)
-    ax.set_xticks(byte_tick_positions)
-    ax.set_xticklabels(byte_tick_labels, fontsize=12)
-    ax.set_xlabel("Time (Byte Intervals)")
+    ax.set_xticks([i + 0.5 for i in range(len(message))])
+    ax.set_xticklabels([str(b) for b in message])
+    ax.set_xlabel("Time (Bit Intervals)")
 
     ax.set_ylabel("Voltage (V)")
 
     # Keep y-limits clean with slight padding
     ax.set_ylim(min(y) - 0.5, max(y) + 0.5)
+    ax.set_xlim(-1, len(message) + 1)
     plt.tight_layout()
     plt.savefig(os.path.join(save_dir, f"{filename_base}_full.png"))
     plt.close(fig)
