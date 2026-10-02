@@ -106,9 +106,9 @@ def polar_rz_scheme(message: str, V=1):
             y += [peak, peak, 0, 0]
     return x, y
 
-def bipolar_manchester(message: str, V=1):
+def polar_biphase_manchester(message: str, V=1):
     """ Generates the x and y values for the plot of a
-    Bipolar Manchester line encoding scheme. The Volatage V 
+    Manchester line encoding scheme. The Volatage V 
     is the peak-to-peak voltage. """
     if len(message) == 0:
         return [], []
@@ -122,9 +122,9 @@ def bipolar_manchester(message: str, V=1):
             y += [-peak, -peak, peak, peak]
     return x, y
 
-def bipolar_differential_manchester(message: str, V=1):
+def polar_biphase_differential_manchester(message: str, V=1):
     """ Generates the x and y values for the plot of a
-    Bipolar Differential Manchester line encoding scheme. 
+    Differential Manchester line encoding scheme. 
     The Volatage V is the peak-to-peak voltage. """
 
     if len(message) == 0:
@@ -342,14 +342,14 @@ if __name__ == "__main__":
 
     # Define schemes to generate
     schemes = [
-        (unipolar_scheme, "Unipolar NRZ", TRUNC_LENGTH, False),
-        (polar_nrz_l_scheme, "Polar NRZ-L", TRUNC_LENGTH, False),
-        (polar_nrz_i_scheme, "Polar NRZ-I", TRUNC_LENGTH, True),
-        (polar_rz_scheme, "Polar RZ", TRUNC_LENGTH, False),
-        (bipolar_manchester, "Bipolar Manchester", TRUNC_LENGTH, False),
-        (bipolar_differential_manchester, "Bipolar Differential Manchester", TRUNC_LENGTH, True),
-        (bipolar_ami, "Bipolar AMI", TRUNC_LENGTH, False),
-        (bipolar_pseudoternary, "Bipolar Pseudoternary", TRUNC_LENGTH, False),
+        (unipolar_scheme, "Unipolar NRZ Encoding", TRUNC_LENGTH, False),
+        (polar_nrz_l_scheme, "Polar NRZ-L Encoding", TRUNC_LENGTH, False),
+        (polar_nrz_i_scheme, "Polar NRZ-I Encoding", TRUNC_LENGTH, True),
+        (polar_rz_scheme, "Polar RZ Encoding", TRUNC_LENGTH, False),
+        (polar_biphase_manchester, "Polar-Biphase: Manchester Encoding", TRUNC_LENGTH, False),
+        (polar_biphase_differential_manchester, "Polar-Biphase: Differential Manchester Encoding", TRUNC_LENGTH, True),
+        (bipolar_ami, "Bipolar: AMI Encoding", TRUNC_LENGTH, False),
+        (bipolar_pseudoternary, "Bipolar: Pseudoternary Encoding", TRUNC_LENGTH, False),
     ]
 
     # Generate Each Plot
