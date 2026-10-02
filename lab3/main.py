@@ -189,7 +189,31 @@ def bipolar_pseudoternary(message: str, V=1):
 
     return x, y
 
-def generate_plots(plot_func, message: str, title: str, save_dir: str, V=1, trunc_len: int = 32):
+def plot_figure_inversions(ax, x, y):
+    start_index = 0 if y[0] != y[1] else 2
+    inversions_x = []
+    inversions_y = []
+    
+    non_inversions_x = []
+    non_inversions_y = []
+
+    for i in range(start_index, len(y)-1, 2):
+        # ensures only plots points where x is a whole number 
+        # bc diff manchester 
+        if x[i] != x[i] // 1:
+            continue
+        if y[i] == y[i + 1]:
+            non_inversions_x.append(x[i])
+            non_inversions_y.append(y[i])
+        else:
+            inversions_x.append(x[i])
+            inversions_y.append(y[i])
+
+    ax.scatter(inversions_x, inversions_y, facecolor='black', edgecolor='black', s=30, zorder=3, label="Inversions")
+    ax.scatter(non_inversions_x, non_inversions_y, facecolor='white', edgecolor='black', linewidth=1.5, s=30, zorder=3, label="Non-Inversions")
+
+
+def generate_plots(plot_func, message: str, title: str, save_dir: str, V=1, trunc_len: int = 32, plot_inversions: bool = False):
     os.makedirs(save_dir, exist_ok=True)
     filename_base = title.lower().replace(" ", "_")
 
@@ -200,14 +224,18 @@ def generate_plots(plot_func, message: str, title: str, save_dir: str, V=1, trun
     fig, ax = plt.subplots(figsize=(6, 3.5), dpi=250)
     x, y = plot_func(message_trunc, V=V_GLOBAL)
     plot_title = f'{title} (Truncated to First {trunc_len} Bits)' 
+
     ax.plot(
         x, 
         y, 
-        label=plot_title, 
         color="tab:blue",
         linewidth=2,
         drawstyle="steps-post"
     )
+    
+    if plot_inversions:
+        plot_figure_inversions(ax, x, y)
+        ax.legend(loc='upper right', framealpha=0.9)
 
     # Draw boundary lines for each bit
     for bit_boundary in range(0, len(message_trunc) + 1):
@@ -234,7 +262,6 @@ def generate_plots(plot_func, message: str, title: str, save_dir: str, V=1, trun
     ax.set_xticks([i + 0.5 for i in range(len(message_trunc))])
     ax.set_xticklabels([str(b) for b in message_trunc])
     ax.set_xlabel("Time (Bit Intervals)")
-
     ax.set_ylabel("Voltage (V)")
 
     # Keep y-limits clean with slight padding
@@ -256,11 +283,14 @@ def generate_plots(plot_func, message: str, title: str, save_dir: str, V=1, trun
     ax.plot(
         x, 
         y, 
-        label=plot_title, 
         color="tab:blue",
         linewidth=0.8,
         drawstyle="steps-post"
     )
+
+    if plot_inversions:
+        plot_figure_inversions(ax, x, y)
+        ax.legend(loc='upper right', framealpha=0.9)
 
     # Draw boundary lines matched to actual voltage range
     for byte_boundary in range(0, len(message) + 1):
@@ -312,19 +342,19 @@ if __name__ == "__main__":
 
     # Define schemes to generate
     schemes = [
-        (unipolar_scheme, "Unipolar NRZ", TRUNC_LENGTH),
-        (polar_nrz_l_scheme, "Polar NRZ-L", TRUNC_LENGTH),
-        (polar_nrz_i_scheme, "Polar NRZ-I", TRUNC_LENGTH),
-        (polar_rz_scheme, "Polar RZ", TRUNC_LENGTH),
-        (bipolar_manchester, "Bipolar Manchester", TRUNC_LENGTH),
-        (bipolar_differential_manchester, "Bipolar Differential Manchester", TRUNC_LENGTH),
-        (bipolar_ami, "Bipolar AMI", TRUNC_LENGTH),
-        (bipolar_pseudoternary, "Bipolar Pseudoternary", TRUNC_LENGTH),
+        (unipolar_scheme, "Unipolar NRZ", TRUNC_LENGTH, False),
+        (polar_nrz_l_scheme, "Polar NRZ-L", TRUNC_LENGTH, False),
+        (polar_nrz_i_scheme, "Polar NRZ-I", TRUNC_LENGTH, True),
+        (polar_rz_scheme, "Polar RZ", TRUNC_LENGTH, False),
+        (bipolar_manchester, "Bipolar Manchester", TRUNC_LENGTH, False),
+        (bipolar_differential_manchester, "Bipolar Differential Manchester", TRUNC_LENGTH, True),
+        (bipolar_ami, "Bipolar AMI", TRUNC_LENGTH, False),
+        (bipolar_pseudoternary, "Bipolar Pseudoternary", TRUNC_LENGTH, False),
     ]
 
     # Generate Each Plot
-    for func, title, trun in schemes:
+    for func, title, trun, plot_inversions, in schemes:
         print(f"Generating plot for: {title}...")
-        generate_plots(func, MESSAGE, title, EXPORT_DIR, V=1, trunc_len=trun)
+        generate_plots(func, MESSAGE, title, EXPORT_DIR, V=1, trunc_len=trun, plot_inversions=plot_inversions)
 
     print("All plots generated successfully!")
